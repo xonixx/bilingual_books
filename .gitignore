@@ -1,3 +1,4 @@
 *.pdf
 /.idea/
 *.iml
+doc_data.txt
