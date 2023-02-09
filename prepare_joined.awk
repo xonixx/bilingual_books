@@ -1,10 +1,13 @@
 BEGIN {
     PdfLeft  = ARGV[1]
     PdfRight = ARGV[2]
+
     print "Will join '" PdfLeft "' and '" PdfRight "'..."
+
     "pdftk " PdfLeft " dumpdata | grep NumberOfPages" | getline
     NumberOfPages = $2
     print "Number of pages: " NumberOfPages
+
     explodeToPages(PdfLeft)
     explodeToPages(PdfRight)
 
@@ -16,24 +19,23 @@ BEGIN {
         cleanup = cleanup pdf2
     }
     cmd = cmd "cat output combined.pdf"
-    printf "%s", "Building combined.pdf..."
-#    print cmd
-    runOrError(cmd)
-    print " done."
 
-    printf "%s", "Cleanup..."
-    runOrError(cleanup)
-    print " done."
+    runOrError("Building combined.pdf", cmd)
+    runOrError("Cleanup", cleanup)
 }
 
 function explodeToPages(file) {
-    printf "%s", "Exploding to pages: '" file "'..."
-    runOrError("pdftk '" file "' burst output '" file "-%d.pdf'")
-    print " done."
+    runOrError("Exploding to pages: '" file,
+        "pdftk '" file "' burst output '" file "-%d.pdf'")
 }
 
-function runOrError(cmd) {
-    if (system(cmd) == 0) { close(cmd); return }
+function runOrError(msg, cmd) {
+    printf "%s...", msg
+    if (system(cmd) == 0) {
+        close(cmd)
+        print " done."
+        return
+    }
     print "error running: " cmd >> "/dev/stderr"
     exit 1
 }
