@@ -9,12 +9,21 @@ BEGIN {
     explodeToPages(PdfRight)
 
     cmd = "pdftk "
+    cleanup = "rm "
     for (i=1; i<=NumberOfPages; i++) {
-        cmd = cmd sprintf("%s-%d.pdf %s-%d.pdf ", PdfLeft, i, PdfRight, i)
+        pdf2 = sprintf("%s-%d.pdf %s-%d.pdf ", PdfLeft, i, PdfRight, i)
+        cmd = cmd pdf2
+        cleanup = cleanup pdf2
     }
     cmd = cmd "cat output combined.pdf"
+    printf "%s", "Building combined.pdf..."
 #    print cmd
     runOrError(cmd)
+    print " done."
+
+    printf "%s", "Cleanup..."
+    runOrError(cleanup)
+    print " done."
 }
 
 function explodeToPages(file) {
